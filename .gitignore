@@ -1,0 +1,40 @@
+# Ignore Python virtual environments
+myvenv/
+
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# Logs
+*.log
+
+
+# Environment variables / secrets (if using)
+.env
+.env.*
+
+
+# VS Code settings
+.vscode/
+
+
+# Jupyter Notebook checkpoints (if any)
+.ipynb_checkpoints/
+
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+
+# Database (if using SQLite locally)
+*.sqlite3
+
+
+# Build / dist / packaging
+build/
+dist/
+*.egg-info/
