@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h2 class="mb-4">My Time Offs</h2>
+    {% if timeoffs %}
+        <ul class="list-group">
+            {% for t in timeoffs %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ t.date }} - {{ t.reason|default:"No reason provided" }}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No time offs marked.</p>
+    {% endif %}
+</div>
+{% endblock %}

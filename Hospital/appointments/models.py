@@ -1,15 +1,24 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from doctors.models import DoctorProfile
 
 User = get_user_model()
 
-class Appointment(models.Model):
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
-    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_as_doctor')
+class DoctorSchedule(models.Model):
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='schedules')
     date = models.DateField()
-    time = models.TimeField()
-    reason = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
 
     def __str__(self):
-        return f"{self.patient} - {self.doctor} on {self.date} at {self.time}"
+        return f"{self.doctor.username}: {self.date} {self.start_time}-{self.end_time}"
+
+class Appointment(models.Model):
+    patient = models.ForeignKey(User, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+    reason = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.patient} with {self.doctor} on {self.date} at {self.time}"

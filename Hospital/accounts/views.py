@@ -3,10 +3,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import PatientRegistrationForm, DoctorRegistrationForm
+from django.contrib import messages
 
 
 def home(request):
     return render(request, 'home.html')
+
+
+def custom_logout_view(request):
+    logout(request)
+    return redirect('login')  # or 'home', depending on where you want to redirect
+
 
 def custom_login_view(request):
     if request.method == 'POST':
@@ -24,19 +31,18 @@ def custom_login_view(request):
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
 
-def custom_logout_view(request):
-    logout(request)
-    return redirect('login')
-
 def register_patient(request):
     if request.method == 'POST':
         form = PatientRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
+            user = form.save()
+            messages.success(request, "Patient registration successful. You are now logged in.")
+            login(request, user)  # Log the patient in directly
+            return redirect('patient_dashboard')  # Redirect to patient dashboard
     else:
         form = PatientRegistrationForm()
     return render(request, 'accounts/register_patient.html', {'form': form})
+
 
 def is_admin_user(user):
     return user.is_authenticated and (user.is_superuser or user.user_type == 'admin')
@@ -48,6 +54,7 @@ def register_doctor_internal(request):
         form = DoctorRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Doctor registered successfully.")
             return redirect('doctor_dashboard')
     else:
         form = DoctorRegistrationForm()

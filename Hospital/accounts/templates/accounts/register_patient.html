@@ -1,12 +1,30 @@
 {% extends 'layout.html' %}
+
 {% block content %}
 <div class="d-flex justify-content-center">
   <div class="col-md-8 col-lg-6">
     <div class="card shadow-sm p-4 mt-4">
+
+      <!-- ✅ Success/Error Messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
       <h3 class="text-center mb-4">Register</h3>
       <form method="post">
         {% csrf_token %}
-        
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="username" class="form-label">Username:</label>
+          <input type="text" class="form-control" id="username" name="username" value="{{ form.username.value|default:'' }}" required>
+        </div>
+
         <!-- Email -->
         <div class="mb-3">
           <label for="email" class="form-label">Email address:</label>
