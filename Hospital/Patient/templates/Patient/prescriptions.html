@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">My Prescriptions</h3>
+  {% if prescriptions %}
+    <div class="list-group">
+      {% for p in prescriptions %}
+        <div class="list-group-item">
+          <h5>Date: {{ p.date_issued }}</h5>
+          <p><strong>Doctor:</strong> {{ p.doctor.user.get_full_name }}</p>
+          <p><strong>Medication:</strong> {{ p.medication }}</p>
+          <p><strong>Instructions:</strong> {{ p.instructions }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No prescriptions available.</p>
+  {% endif %}
+</div>
+{% endblock %}

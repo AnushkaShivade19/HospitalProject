@@ -4,6 +4,12 @@
   <div class="card p-4 shadow-sm">
     <h3 class="mb-3">Welcome, {{ user.username }}</h3>
     <p>Book appointments, view your medical history, and manage prescriptions.</p>
+
+    <!-- Appointment Buttons -->
+    <div class="mt-4">
+      <a href="{% url 'book_appointment' %}" class="btn btn-primary me-2">📅 Book Appointment</a>
+      <a href="{% url 'my_appointments' %}" class="btn btn-outline-secondary">🗂️ View My Appointments</a>
+    </div>
   </div>
 </div>
 {% endblock %}
