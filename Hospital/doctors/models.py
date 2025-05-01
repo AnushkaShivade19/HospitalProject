@@ -2,12 +2,19 @@ from django.db import models
 from django.conf import settings  # Correct import
 
 class DoctorProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ✅ Corrected
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100)
+    qualification = models.CharField(max_length=200)
+    years_of_experience = models.PositiveIntegerField()
+    clinic_address = models.TextField()
+    phone_number = models.CharField(max_length=15)
+    profile_picture = models.ImageField(upload_to='doctors/', blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    available_for_online = models.BooleanField(default=False)
+    rating = models.FloatField(default=0.0)
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.specialization}"
-
 class DoctorSchedule(models.Model):
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
     day_of_week = models.CharField(max_length=10, choices=[

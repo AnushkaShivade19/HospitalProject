@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Appointment
 from doctors.models import DoctorProfile, DoctorSchedule, TimeOff
-from .forms import AppointmentForm  # optional, if using ModelForm
 from datetime import datetime, timedelta, time as djangotime
-
+from django.shortcuts import render, redirect
+from .models import DoctorSchedule, Appointment
+from .forms import DoctorScheduleForm
+from datetime import date
 @login_required
 def appointment_list(request):
     # List the logged-in patient's appointments
@@ -98,3 +100,58 @@ def get_available_slots(doctor, date):
             current_time += timedelta(minutes=SLOT_DURATION_MINUTES)
 
     return slots
+# appointments/views.py
+
+
+
+def add_schedule(request):
+    if request.method == 'POST':
+        form = DoctorScheduleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_schedule')
+    else:
+        form = DoctorScheduleForm()
+    return render(request, 'appointments/add_schedule.html', {'form': form})
+
+
+def view_schedule(request):
+    today = request.GET.get('date', date.today())
+    schedules = DoctorSchedule.objects.filter(date=today)
+    appointments = Appointment.objects.filter(date=today)
+
+    context = {
+        'schedules': schedules,
+        'appointments': appointments,
+        'date': today,
+        'appointments_count': appointments.count()
+    }
+    return render(request, 'appointments/view_schedule.html', context)
+
+def doctor_schedule_list(request):
+    schedules = DoctorSchedule.objects.all()
+    return render(request, 'appointments/schedule_list.html', {'schedules': schedules})
+
+def appointment_detail(request, appointment_id):
+    return render(request, 'appointments/appointment_detail.html', {'appointment_id': appointment_id})
+
+def cancel_appointment(request, appointment_id):
+    # Dummy response for now
+    return render(request, 'appointments/cancel_appointment.html', {'appointment_id': appointment_id})
+@login_required
+def my_appointments(request):
+    # Fetch appointments for the logged-in user
+    appointments = Appointment.objects.filter(user=request.user).order_by('-appointment_date')
+
+    # If no appointments, show a message
+    if not appointments:
+        no_appointments_message = "You have no upcoming appointments."
+    else:
+        no_appointments_message = None
+
+    # Render the template with appointments data
+    return render(
+        request, 
+        'appointments/my_appointments.html', 
+        {'appointments': appointments, 'no_appointments_message': no_appointments_message}
+    )

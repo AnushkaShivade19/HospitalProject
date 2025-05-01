@@ -1,9 +1,73 @@
 {% extends 'layout.html' %}
+{% load static %}
+
 {% block content %}
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h3 class="mb-3">Welcome, Dr. {{ user.username }}</h3>
-    <p>Here you can manage appointments, view patient records, and issue prescriptions.</p>
-  </div>
+<div class="container">
+    <h2>Welcome, Dr. {{ request.user.get_full_name }}</h2>
+
+    <!-- Schedule Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>My Schedule</h4>
+            <a class="btn btn-primary btn-sm" href="{% url 'add_schedule' %}">Add Schedule</a>
+        </div>
+        <div class="card-body">
+            {% if schedules %}
+                <ul class="list-group">
+                    {% for s in schedules %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ s.day }}: {{ s.start_time }} - {{ s.end_time }}
+                            <a href="{% url 'edit_schedule' s.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No schedule added yet.</p>
+            {% endif %}
+            <a href="{% url 'doctor_schedule_list' %}" class="btn btn-link mt-2">View All Schedules</a>
+        </div>
+    </div>
+
+    <!-- Time Off Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>My Time Offs</h4>
+            <a class="btn btn-primary btn-sm" href="{% url 'mark_time_off' %}">Mark Time Off</a>
+        </div>
+        <div class="card-body">
+            {% if timeoffs %}
+                <ul class="list-group">
+                    {% for t in timeoffs %}
+                        <li class="list-group-item">
+                            {{ t.date }} - {{ t.reason }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No time offs marked yet.</p>
+            {% endif %}
+            <a href="{% url 'doctor_timeoff_list' %}" class="btn btn-link mt-2">View All Time Offs</a>
+        </div>
+    </div>
+
+    <!-- Appointments Section -->
+    <div class="card">
+        <div class="card-header">
+            <h4>My Appointments</h4>
+        </div>
+        <div class="card-body">
+            {% if appointments %}
+                <ul class="list-group">
+                    {% for a in appointments %}
+                        <li class="list-group-item">
+                            {{ a.date }} with {{ a.patient.user.get_full_name }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No appointments available.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

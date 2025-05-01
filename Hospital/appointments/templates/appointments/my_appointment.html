@@ -1,0 +1,36 @@
+<!-- appointments/templates/appointments/my_appointments.html -->
+
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">My Appointments</h3>
+
+  {% if no_appointments_message %}
+    <div class="alert alert-info">{{ no_appointments_message }}</div>
+  {% else %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Doctor</th>
+          <th>Appointment Date</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appointment in appointments %}
+          <tr>
+            <td>{{ appointment.doctor_name }}</td>
+            <td>{{ appointment.appointment_date }}</td>
+            <td>{{ appointment.reason }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No appointments found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+{% endblock %}

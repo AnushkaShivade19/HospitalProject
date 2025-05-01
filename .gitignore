@@ -30,10 +30,6 @@ __pycache__/
 Thumbs.db
 
 
-# Database (if using SQLite locally)
-*.sqlite3
-
-
 # Build / dist / packaging
 build/
 dist/

@@ -35,7 +35,7 @@ def edit_schedule(request, schedule_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Schedule updated.")
-            return redirect('doctor_schedule_list')
+            return redirect('doctor_schedule_list')  # You can redirect to your schedule list view here
     else:
         form = DoctorScheduleForm(instance=schedule)
     return render(request, 'doctors/edit_schedule.html', {'form': form})
