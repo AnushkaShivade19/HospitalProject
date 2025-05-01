@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="center-screen">
+  <div class="card shadow-sm p-4" style="min-width: 350px; max-width: 400px;">
+    <h3 class="text-center mb-4">Login</h3>
+    <form method="post">
+      {% csrf_token %}
+      
+      <!-- Error messages -->
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          {% for field in form %}
+            {% for error in field.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Username Field -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Username:</label>
+        <input type="text" name="username" id="username" class="form-control" required>
+      </div>
+
+      <!-- Password Field -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        <input type="password" name="password" id="password" class="form-control" required>
+      </div>
+
+      <!-- Login Button -->
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+
+    <div class="text-center">
+      <p class="mb-0">New user? <a href="{% url 'patient_register' %}">Register as Patient</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

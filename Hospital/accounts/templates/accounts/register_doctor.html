@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="center-screen">
+  <div class="card p-4 shadow-sm" style="width: 100%; max-width: 500px;">
+    <h4 class="mb-3 text-center">Register Doctor (Admin Only)</h4>
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="d-grid mt-3">
+        <button type="submit" class="btn btn-success">Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

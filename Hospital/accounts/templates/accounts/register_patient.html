@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm p-4 mt-4">
+      <h3 class="text-center mb-4">Register</h3>
+      <form method="post">
+        {% csrf_token %}
+        
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address:</label>
+          <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password1" class="form-label">Password:</label>
+          <input type="password" class="form-control" id="password1" name="password1" required>
+          <div class="form-text">
+            <ul class="mb-0 ps-3">
+              <li>Your password must contain at least 8 characters.</li>
+              <li>It can’t be too similar to your other personal info.</li>
+              <li>It can’t be a commonly used password or entirely numeric.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-3">
+          <label for="password2" class="form-label">Password confirmation:</label>
+          <input type="password" class="form-control" id="password2" name="password2" required>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone number:</label>
+          <input type="text" class="form-control" id="phone" name="phone" value="{{ form.phone.value|default:'' }}">
+        </div>
+
+        <!-- Address -->
+        <div class="mb-3">
+          <label for="address" class="form-label">Address:</label>
+          <textarea class="form-control" id="address" name="address" rows="3">{{ form.address.value|default:'' }}</textarea>
+        </div>
+
+        <!-- DOB -->
+        <div class="mb-3">
+          <label for="dob" class="form-label">Date of birth:</label>
+          <input type="date" class="form-control" id="dob" name="dob" value="{{ form.dob.value|default:'' }}">
+        </div>
+
+        <!-- Gender -->
+        <div class="mb-3">
+          <label for="gender" class="form-label">Gender:</label>
+          <select class="form-select" id="gender" name="gender">
+            <option value="Male" {% if form.gender.value == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if form.gender.value == "Female" %}selected{% endif %}>Female</option>
+            <option value="Other" {% if form.gender.value == "Other" %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <!-- Register Button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success">Register</button>
+        </div>
+
+        <!-- Login Redirect -->
+        <p class="text-center mt-3">
+          Already have an account? <a href="{% url 'login' %}">Login</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

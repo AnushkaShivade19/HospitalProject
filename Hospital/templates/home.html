@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero">
+  <h1>Welcome to the Hospital Management System</h1>
+  <p>Manage patients, doctors, appointments, and more with ease.</p>
+</div>
+
+<!-- Role Selection Buttons -->
+<div class="center-screen">
+  <div class="text-center">
+    <p class="mb-4 fs-5">Please select your role:</p>
+    <a href="{% url 'login' %}" class="btn btn-primary m-2">I'm a Patient</a>
+    <a href="{% url 'login' %}" class="btn btn-outline-primary m-2">I'm a Doctor</a>
+  </div>
+</div>
+
+{% endblock %}
