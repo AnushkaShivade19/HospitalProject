@@ -5,10 +5,10 @@
 <div class="container">
     <h2>Welcome, Dr. {{ request.user.get_full_name }}</h2>
 
-    <!-- Schedule Section -->
+    <!-- Weekly Schedule -->
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h4>My Schedule</h4>
+            <h4>My Weekly Schedule</h4>
             <a class="btn btn-primary btn-sm" href="{% url 'add_schedule' %}">Add Schedule</a>
         </div>
         <div class="card-body">
@@ -16,7 +16,7 @@
                 <ul class="list-group">
                     {% for s in schedules %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ s.day }}: {{ s.start_time }} - {{ s.end_time }}
+                            {{ s.day }}: {{ s.start_time|date:"g a" }} - {{ s.end_time|date:"g a" }}
                             <a href="{% url 'edit_schedule' s.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
                         </li>
                     {% endfor %}
@@ -39,7 +39,7 @@
                 <ul class="list-group">
                     {% for t in timeoffs %}
                         <li class="list-group-item">
-                            {{ t.date }} - {{ t.reason }}
+                            {{ t.date|date:"M d, Y" }} - {{ t.reason }}
                         </li>
                     {% endfor %}
                 </ul>
@@ -60,7 +60,7 @@
                 <ul class="list-group">
                     {% for a in appointments %}
                         <li class="list-group-item">
-                            {{ a.date }} with {{ a.patient.user.get_full_name }}
+                            {{ a.date|date:"M d, Y" }} with {{ a.patient.user.get_full_name }}
                         </li>
                     {% endfor %}
                 </ul>

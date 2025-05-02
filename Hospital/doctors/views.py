@@ -13,18 +13,27 @@ def doctor_schedule_list(request):
 
 @login_required
 def add_schedule(request):
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    # Get the doctor profile linked to the user
     doctor = get_object_or_404(DoctorProfile, user=request.user)
+
     if request.method == 'POST':
-        form = DoctorScheduleForm(request.POST)
-        if form.is_valid():
-            schedule = form.save(commit=False)
-            schedule.doctor = doctor
-            schedule.save()
+        day = request.POST.get('day')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        if day and start_time and end_time:
+            DoctorSchedule.objects.create(
+                doctor=doctor,
+                day_of_week=day,
+                start_time=start_time,
+                end_time=end_time
+            )
             messages.success(request, "Schedule added successfully.")
-            return redirect('doctor_schedule_list')
-    else:
-        form = DoctorScheduleForm()
-    return render(request, 'doctors/add_schedule.html', {'form': form})
+            return redirect('doctor_schedule_list')  # Update with correct URL name
+
+    return render(request, 'doctors/add_schedule.html', {'days_of_week': days_of_week})
 
 @login_required
 def edit_schedule(request, schedule_id):

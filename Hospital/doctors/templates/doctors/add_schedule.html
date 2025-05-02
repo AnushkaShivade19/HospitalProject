@@ -14,13 +14,9 @@
         <label for="day" class="form-label">Day of Week</label>
         <select id="day" name="day" class="form-select" required>
           <option value="">Select a day</option>
-          <option>Monday</option>
-          <option>Tuesday</option>
-          <option>Wednesday</option>
-          <option>Thursday</option>
-          <option>Friday</option>
-          <option>Saturday</option>
-          <option>Sunday</option>
+          {% for day in days_of_week %}
+            <option value="{{ day }}">{{ day }}</option>
+          {% endfor %}
         </select>
       </div>
 

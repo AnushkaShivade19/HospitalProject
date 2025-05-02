@@ -105,6 +105,7 @@ def get_available_slots(doctor, date):
 
 
 def add_schedule(request):
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     if request.method == 'POST':
         form = DoctorScheduleForm(request.POST)
         if form.is_valid():

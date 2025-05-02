@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect ,get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -77,18 +77,13 @@ def register_doctor_internal(request):
         form = DoctorRegistrationForm()
     return render(request, 'accounts/register_doctor.html', {'form': form})
 
-
 @login_required
 def doctor_dashboard(request):
-    try:
-        doctor_profile = DoctorProfile.objects.get(user=request.user)
-    except DoctorProfile.DoesNotExist:
-        messages.error(request, "You don't have a doctor profile yet. Please register as a doctor.")
-        return redirect('home')  # or wherever you'd like
+    doctor = get_object_or_404(DoctorProfile, user=request.user)
 
-    schedules = DoctorSchedule.objects.filter(doctor=doctor_profile)
-    timeoffs = TimeOff.objects.filter(doctor=doctor_profile)
-    appointments = Appointment.objects.filter(doctor=doctor_profile)
+    schedules = DoctorSchedule.objects.filter(doctor=doctor).order_by('day_of_week')
+    timeoffs = TimeOff.objects.filter(doctor=doctor).order_by('-date')
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('-date')
 
     context = {
         'schedules': schedules,
@@ -96,6 +91,7 @@ def doctor_dashboard(request):
         'appointments': appointments,
     }
     return render(request, 'accounts/doctor_dashboard.html', context)
+
 @login_required
 def patient_dashboard(request):
     return render(request, 'accounts/patient_dashboard.html')
