@@ -2,12 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Appointment
-from doctors.models import DoctorProfile, DoctorSchedule, TimeOff
+from doctors.models import DoctorProfile, DoctorSchedule, TimeOff, Doctor
 from datetime import datetime, timedelta, time as djangotime
 from django.shortcuts import render, redirect
 from .models import DoctorSchedule, Appointment
-from .forms import DoctorScheduleForm
+from .forms import DoctorScheduleForm,SpecializationFilterForm
 from datetime import date
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
 @login_required
 def appointment_list(request):
     # List the logged-in patient's appointments
@@ -34,40 +36,60 @@ def doctor_available_slots(request, doctor_id):
     })
 
 @login_required
-def book_appointment(request, doctor_id):
-    doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+def book_appointment(request):
+    # Step 1: Get all predefined specializations
+    specializations = [choice[0] for choice in DoctorProfile.SPECIALIZATION_CHOICES]
+
+    # Step 2: Get selected specialization & doctors in that field
+    selected_specialization = request.GET.get('specialization') or request.POST.get('specialization')
+    doctors = Doctor.objects.filter(specialization=selected_specialization) if selected_specialization else []
+
+    # Step 3: Get the selected doctor and their available slots
+    selected_doctor_id = request.GET.get('doctor') or request.POST.get('doctor_id')
+    selected_doctor = Doctor.objects.filter(id=selected_doctor_id).first() if selected_doctor_id else None
+    slots = DoctorSchedule.objects.filter(doctor=selected_doctor) if selected_doctor else None
 
     if request.method == 'POST':
         date_str = request.POST.get('date')
         time_str = request.POST.get('time')
         reason = request.POST.get('reason', '')
 
-        if not date_str or not time_str:
-            messages.error(request, "Date and time are required.")
-            return redirect('doctor_available_slots', doctor_id=doctor_id)
+        # Check for missing information
+        if not (selected_doctor and date_str and time_str):
+            messages.error(request, "Please select specialization, doctor, date, and time.")
+            return redirect('book_appointment')
 
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-        time_obj = datetime.strptime(time_str, '%H:%M').time()
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            time_obj = datetime.strptime(time_str, '%H:%M').time()
+        except ValueError:
+            messages.error(request, "Invalid date or time format.")
+            return redirect('book_appointment')
 
-        # Check if the slot is still available
-        available_slots = get_available_slots(doctor, date_obj)
+        # Check if the selected time slot is available
+        available_slots = get_available_slots(selected_doctor, date_obj)
         if time_obj not in available_slots:
             messages.error(request, "This slot is no longer available.")
-            return redirect('doctor_available_slots', doctor_id=doctor_id)
+            return redirect('book_appointment')
 
-        # Create appointment
+        # Save the appointment
         Appointment.objects.create(
             patient=request.user,
-            doctor=doctor,
+            doctor=selected_doctor,
             date=date_obj,
             time=time_obj,
             reason=reason
         )
         messages.success(request, "Appointment booked successfully.")
-        return redirect('appointment_list')
+        return redirect('my_appointments')
 
-    return redirect('doctor_available_slots', doctor_id=doctor_id)
-
+    return render(request, 'appointments/book_appointment.html', {
+        'specializations': specializations,
+        'selected_specialization': selected_specialization,
+        'doctors': doctors,
+        'selected_doctor': selected_doctor,
+        'slots': slots
+    })
 
 def get_available_slots(doctor, date):
     """
@@ -156,3 +178,29 @@ def my_appointments(request):
         'appointments/my_appointments.html', 
         {'appointments': appointments, 'no_appointments_message': no_appointments_message}
     )
+def choose_specialization(request):
+    form = SpecializationFilterForm(request.GET or None)
+    doctors = None
+
+    if form.is_valid():
+        specialization = form.cleaned_data['specialization']
+        doctors = DoctorProfile.objects.filter(specialization=specialization)
+
+    return render(request, 'appointments/choose_doctor.html', {
+        'form': form,
+        'doctors': doctors,
+    })
+    
+User = get_user_model()
+
+def get_doctors_by_specialization(request):
+    specialization = request.GET.get('specialization')
+    doctors = DoctorProfile.objects.filter(specialization=specialization).select_related('user')
+    doctor_list = [
+        {
+            'id': doctor.id,
+            'name': f"{doctor.user.first_name} {doctor.user.last_name or ''}".strip()
+        }
+        for doctor in doctors
+    ]
+    return JsonResponse({'doctors': doctor_list})

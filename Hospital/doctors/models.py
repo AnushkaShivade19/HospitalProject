@@ -2,6 +2,38 @@ from django.db import models
 from django.conf import settings  # Correct import
 
 class DoctorProfile(models.Model):
+    SPECIALIZATION_CHOICES = [
+    ('cardiology', 'Cardiology'),
+    ('dermatology', 'Dermatology'),
+    ('neurology', 'Neurology'),
+    ('orthopedics', 'Orthopedics'),
+    ('pediatrics', 'Pediatrics'),
+    ('psychiatry', 'Psychiatry'),
+    ('radiology', 'Radiology'),
+    ('oncology', 'Oncology'),
+    ('gastroenterology', 'Gastroenterology'),
+    ('gynecology', 'Gynecology & Obstetrics'),
+    ('urology', 'Urology'),
+    ('nephrology', 'Nephrology'),
+    ('endocrinology', 'Endocrinology'),
+    ('pulmonology', 'Pulmonology'),
+    ('ophthalmology', 'Ophthalmology'),
+    ('ent', 'ENT (Ear, Nose, Throat)'),
+    ('anesthesiology', 'Anesthesiology'),
+    ('general_surgery', 'General Surgery'),
+    ('plastic_surgery', 'Plastic Surgery'),
+    ('vascular_surgery', 'Vascular Surgery'),
+    ('rheumatology', 'Rheumatology'),
+    ('infectious_diseases', 'Infectious Diseases'),
+    ('immunology', 'Immunology'),
+    ('hematology', 'Hematology'),
+    ('sports_medicine', 'Sports Medicine'),
+    ('geriatrics', 'Geriatrics'),
+    ('family_medicine', 'Family Medicine'),
+    ('internal_medicine', 'Internal Medicine'),
+    ('pain_management', 'Pain Management'),
+    ('rehabilitation', 'Physical Medicine & Rehabilitation'),
+    ]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100)
     qualification = models.CharField(max_length=200)

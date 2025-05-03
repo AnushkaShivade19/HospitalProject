@@ -48,35 +48,21 @@ def register_patient(request):
         form = PatientRegistrationForm()
     return render(request, 'accounts/register_patient.html', {'form': form})
 
-
-
-@user_passes_test(is_admin_user)
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def register_doctor_internal(request):
     if request.method == 'POST':
-        form = DoctorRegistrationForm(request.POST)
+        form = DoctorRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.user_type = 'doctor'  # assuming your model has this field
-            user.save()
-
-            # Create DoctorProfile here (you can adjust these fields as needed)
-            DoctorProfile.objects.create(
-                user=user,
-                specialization=request.POST.get('specialization', ''),
-                qualification=request.POST.get('qualification', ''),
-                years_of_experience=request.POST.get('years_of_experience', 0),
-                clinic_address=request.POST.get('clinic_address', ''),
-                phone_number=request.POST.get('phone_number', ''),
-                # Optionally add profile_picture, bio, etc.
-            )
-
+            # Save the form and create the user and profile
+            form.save()
             messages.success(request, "Doctor registered successfully.")
-            return redirect('doctor_dashboard')
+            return redirect('doctor_dashboard')  # Redirect to doctor dashboard or another page
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = DoctorRegistrationForm()
-    return render(request, 'accounts/register_doctor.html', {'form': form})
 
+    return render(request, 'accounts/register_doctor.html', {'form': form})
 @login_required
 def doctor_dashboard(request):
     doctor = get_object_or_404(DoctorProfile, user=request.user)
@@ -94,4 +80,35 @@ def doctor_dashboard(request):
 
 @login_required
 def patient_dashboard(request):
-    return render(request, 'accounts/patient_dashboard.html')
+    doctors = DoctorProfile.objects.all()
+    return render(request, 'accounts/patient_dashboard.html', {'doctors': doctors})
+
+# Register doctor view
+def register_doctor(request):
+    if request.method == 'POST':
+        form = DoctorRegisterForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save the user first (Doctor)
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])  # Set password
+            user.user_type = 'doctor'  # Set the user type to 'doctor'
+            user.save()
+
+            # Create the Doctor Profile
+            doctor_profile = DoctorProfile.objects.create(
+                user=user,
+                specialization=form.cleaned_data['specialization'],
+                qualification=form.cleaned_data['qualification'],
+                years_of_experience=form.cleaned_data['years_of_experience'],
+                clinic_address=form.cleaned_data['clinic_address'],
+                phone_number=form.cleaned_data['phone_number'],
+                profile_picture=form.cleaned_data.get('profile_picture'),
+                bio=form.cleaned_data.get('bio'),
+                available_for_online=form.cleaned_data['available_for_online'],
+            )
+
+            return redirect('doctor_dashboard')  # Redirect to doctor dashboard after registration
+    else:
+        form = DoctorRegisterForm()
+
+    return render(request, 'accounts/register_doctor.html', {'form': form})

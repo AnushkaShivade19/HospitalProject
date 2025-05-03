@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <h3 class="mb-3">{{ doctor.name }}'s Available Slots</h3>
+
+    <p>Specialization: {{ doctor.specialization }}</p>
+    <p>Contact: {{ doctor.contact }}</p>
+
+    <h5 class="mt-4">Available Time Slots:</h5>
+
+    {% if slots %}
+      <ul class="list-group">
+        {% for slot in slots %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ slot.day_of_week }}: {{ slot.start_time }} - {{ slot.end_time }}</span>
+            <a href="{% url 'book_appointment' doctor_id=doctor.id %}?slot_id={{ slot.id }}" class="btn btn-outline-primary btn-sm">Book Appointment</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No available slots for this doctor at the moment.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

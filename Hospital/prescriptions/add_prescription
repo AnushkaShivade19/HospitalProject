@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Add New Prescription</h4>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        
+        <div class="col-md-6">
+          <label class="form-label">Patient Name</label>
+          {{ form.patient_name|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Diagnosis</label>
+          {{ form.diagnosis|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Medications</label>
+          {{ form.medications|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Notes</label>
+          {{ form.notes|add_class:"form-control" }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Upload File (optional)</label>
+          {{ form.prescription_file|add_class:"form-control" }}
+        </div>
+        
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-success">Submit</button>
+          <a href="{% url 'prescription_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

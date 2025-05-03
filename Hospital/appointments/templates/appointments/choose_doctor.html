@@ -1,0 +1,20 @@
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+  
+  {% if doctors %}
+    <h3>Available Doctors:</h3>
+    <ul>
+      {% for doc in doctors %}
+        <li>
+          {{ doc.user.get_full_name|default:doc.user.username }} ({{ doc.specialization }}) —
+          <a href="{% url 'doctor_available_slots' doctor_id=doc.id %}">View Slots</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+      
+      {% if not doctors %}
+     <p>No doctors found for the selected specialization.</p>
+      {% endif %}  

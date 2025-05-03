@@ -19,14 +19,50 @@ class CustomUser(AbstractUser):
 
 # Model for storing doctor details
 class Doctor(models.Model):
+    SPECIALIZATION_CHOICES = [
+    ('cardiology', 'Cardiology'),
+    ('dermatology', 'Dermatology'),
+    ('neurology', 'Neurology'),
+    ('orthopedics', 'Orthopedics'),
+    ('pediatrics', 'Pediatrics'),
+    ('psychiatry', 'Psychiatry'),
+    ('radiology', 'Radiology'),
+    ('oncology', 'Oncology'),
+    ('gastroenterology', 'Gastroenterology'),
+    ('gynecology', 'Gynecology & Obstetrics'),
+    ('urology', 'Urology'),
+    ('nephrology', 'Nephrology'),
+    ('endocrinology', 'Endocrinology'),
+    ('pulmonology', 'Pulmonology'),
+    ('ophthalmology', 'Ophthalmology'),
+    ('ent', 'ENT (Ear, Nose, Throat)'),
+    ('anesthesiology', 'Anesthesiology'),
+    ('general_surgery', 'General Surgery'),
+    ('plastic_surgery', 'Plastic Surgery'),
+    ('vascular_surgery', 'Vascular Surgery'),
+    ('rheumatology', 'Rheumatology'),
+    ('infectious_diseases', 'Infectious Diseases'),
+    ('immunology', 'Immunology'),
+    ('hematology', 'Hematology'),
+    ('sports_medicine', 'Sports Medicine'),
+    ('geriatrics', 'Geriatrics'),
+    ('family_medicine', 'Family Medicine'),
+    ('internal_medicine', 'Internal Medicine'),
+    ('pain_management', 'Pain Management'),
+    ('rehabilitation', 'Physical Medicine & Rehabilitation'),
+    ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    specialization = models.CharField(max_length=100)
+    specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
     qualification = models.CharField(max_length=200)
-    experience_years = models.IntegerField()
+    years_of_experience = models.IntegerField()
+    clinic_address = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15)
+    profile_picture = models.ImageField(upload_to='doctor_profiles/', blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    available_for_online = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Dr. {self.user.username} - {self.specialization}"
-
 # Model for storing patient details
 class Patient(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)

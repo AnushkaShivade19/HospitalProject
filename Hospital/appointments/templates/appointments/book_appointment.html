@@ -1,11 +1,73 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="card shadow-sm p-4">
-    <h2 class="mb-4">Book Appointment</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary mt-3">Book Appointment</button>
-    </form>
+<div class="container mt-4">
+  <h2>Book an Appointment</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <!-- Step 1: Select Specialization -->
+    <div class="mb-3">
+      <label for="specialization">Choose Specialization:</label>
+      <select name="specialization" id="specialization" class="form-control" required>
+        <option value="">-- Select Specialization --</option>
+        {% for spec in specializations %}
+          <option value="{{ spec }}">{{ spec|capfirst }}</option>
+        {% endfor %}
+      </select>
+      
+    </div>
+
+    <!-- Step 2: Select Doctor (dynamic) -->
+    <div class="mb-3">
+      <label for="doctor">Choose Doctor:</label>
+      <select name="doctor_id" id="doctor" class="form-control" required>
+        <option value="">-- Select Doctor --</option>
+      </select>
+    </div>
+
+    <!-- Step 3: Date -->
+    <div class="mb-3">
+      <label for="date">Select Date:</label>
+      <input type="date" name="date" class="form-control" required>
+    </div>
+
+    <!-- Step 4: Time -->
+    <div class="mb-3">
+      <label for="time">Select Time:</label>
+      <input type="time" name="time" class="form-control" required>
+    </div>
+
+    <!-- Step 5: Reason -->
+    <div class="mb-3">
+      <input type="text" name="reason" class="form-control" placeholder="Reason for visit">
+    </div>
+
+    <button type="submit" class="btn btn-success">Book</button>
+  </form>
 </div>
+
+<script>
+  document.getElementById('specialization').addEventListener('change', function () {
+    const specialization = this.value;
+    const doctorSelect = document.getElementById('doctor');
+    doctorSelect.innerHTML = '<option value="">Loading...</option>';
+
+    if (specialization) {
+      fetch(`/ajax/get-doctors/?specialization=${specialization}`)
+        .then(response => response.json())
+        .then(data => {
+          doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+          data.doctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.id;
+            option.textContent = doctor.name;
+            doctorSelect.appendChild(option);
+          });
+        });
+    } else {
+      doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+    }
+  });
+</script>
 {% endblock %}
