@@ -48,28 +48,59 @@ def register_patient(request):
         form = PatientRegistrationForm()
     return render(request, 'accounts/register_patient.html', {'form': form})
 
+
+
 @user_passes_test(lambda u: u.is_superuser)
 def register_doctor_internal(request):
     if request.method == 'POST':
         form = DoctorRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save the form and create the user and profile
-            form.save()
+            # Save the User object (doctor user)
+            user = form.save()
+
+            # Prevent duplicate DoctorProfile creation
+            if DoctorProfile.objects.filter(user=user).exists():
+                messages.error(request, "This user already has a doctor profile.")
+                return redirect('doctor_dashboard')
+
+            # Create the DoctorProfile
+            doctor_profile = DoctorProfile.objects.create(
+                user=user,
+                specialization=form.cleaned_data.get('specialization'),
+                qualification=form.cleaned_data.get('qualification'),
+                years_of_experience=form.cleaned_data.get('years_of_experience'),
+                clinic_address=form.cleaned_data.get('clinic_address'),
+                phone_number=form.cleaned_data.get('phone_number'),
+                profile_picture=form.cleaned_data.get('profile_picture'),  
+                bio=form.cleaned_data.get('bio'),
+            )
+
             messages.success(request, "Doctor registered successfully.")
-            return redirect('doctor_dashboard')  # Redirect to doctor dashboard or another page
+            return redirect('doctor_dashboard')  # Or another success page
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = DoctorRegistrationForm()
 
     return render(request, 'accounts/register_doctor.html', {'form': form})
+
+
+
 @login_required
 def doctor_dashboard(request):
-    doctor = get_object_or_404(DoctorProfile, user=request.user)
+    # Superusers should have access to all profiles
+    if request.user.is_superuser:
+        doctor = None
+    else:
+        try:
+            doctor = DoctorProfile.objects.get(user=request.user)
+        except DoctorProfile.DoesNotExist:
+            messages.error(request, "You are not registered as a doctor.")
+            return redirect('home')
 
-    schedules = DoctorSchedule.objects.filter(doctor=doctor).order_by('day_of_week')
-    timeoffs = TimeOff.objects.filter(doctor=doctor).order_by('-date')
-    appointments = Appointment.objects.filter(doctor=doctor).order_by('-date')
+    schedules = DoctorSchedule.objects.filter(doctor=doctor).order_by('day_of_week') if doctor else []
+    timeoffs = TimeOff.objects.filter(doctor=doctor).order_by('-date') if doctor else []
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('-date') if doctor else []
 
     context = {
         'schedules': schedules,
@@ -84,31 +115,3 @@ def patient_dashboard(request):
     return render(request, 'accounts/patient_dashboard.html', {'doctors': doctors})
 
 # Register doctor view
-def register_doctor(request):
-    if request.method == 'POST':
-        form = DoctorRegisterForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Save the user first (Doctor)
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Set password
-            user.user_type = 'doctor'  # Set the user type to 'doctor'
-            user.save()
-
-            # Create the Doctor Profile
-            doctor_profile = DoctorProfile.objects.create(
-                user=user,
-                specialization=form.cleaned_data['specialization'],
-                qualification=form.cleaned_data['qualification'],
-                years_of_experience=form.cleaned_data['years_of_experience'],
-                clinic_address=form.cleaned_data['clinic_address'],
-                phone_number=form.cleaned_data['phone_number'],
-                profile_picture=form.cleaned_data.get('profile_picture'),
-                bio=form.cleaned_data.get('bio'),
-                available_for_online=form.cleaned_data['available_for_online'],
-            )
-
-            return redirect('doctor_dashboard')  # Redirect to doctor dashboard after registration
-    else:
-        form = DoctorRegisterForm()
-
-    return render(request, 'accounts/register_doctor.html', {'form': form})

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from doctors.models import DoctorProfile
 
 
 # Custom User model to support multiple types of users (patients, doctors, admins)
@@ -16,53 +17,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
-
-# Model for storing doctor details
-class Doctor(models.Model):
-    SPECIALIZATION_CHOICES = [
-    ('cardiology', 'Cardiology'),
-    ('dermatology', 'Dermatology'),
-    ('neurology', 'Neurology'),
-    ('orthopedics', 'Orthopedics'),
-    ('pediatrics', 'Pediatrics'),
-    ('psychiatry', 'Psychiatry'),
-    ('radiology', 'Radiology'),
-    ('oncology', 'Oncology'),
-    ('gastroenterology', 'Gastroenterology'),
-    ('gynecology', 'Gynecology & Obstetrics'),
-    ('urology', 'Urology'),
-    ('nephrology', 'Nephrology'),
-    ('endocrinology', 'Endocrinology'),
-    ('pulmonology', 'Pulmonology'),
-    ('ophthalmology', 'Ophthalmology'),
-    ('ent', 'ENT (Ear, Nose, Throat)'),
-    ('anesthesiology', 'Anesthesiology'),
-    ('general_surgery', 'General Surgery'),
-    ('plastic_surgery', 'Plastic Surgery'),
-    ('vascular_surgery', 'Vascular Surgery'),
-    ('rheumatology', 'Rheumatology'),
-    ('infectious_diseases', 'Infectious Diseases'),
-    ('immunology', 'Immunology'),
-    ('hematology', 'Hematology'),
-    ('sports_medicine', 'Sports Medicine'),
-    ('geriatrics', 'Geriatrics'),
-    ('family_medicine', 'Family Medicine'),
-    ('internal_medicine', 'Internal Medicine'),
-    ('pain_management', 'Pain Management'),
-    ('rehabilitation', 'Physical Medicine & Rehabilitation'),
-    ]
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
-    qualification = models.CharField(max_length=200)
-    years_of_experience = models.IntegerField()
-    clinic_address = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=15)
-    profile_picture = models.ImageField(upload_to='doctor_profiles/', blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-    available_for_online = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Dr. {self.user.username} - {self.specialization}"
+    
 # Model for storing patient details
 class Patient(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -73,20 +28,9 @@ class Patient(models.Model):
     def __str__(self):
         return f"Patient {self.user.username}"
 
-# Model for storing appointments between patients and doctors
-class Appointment(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    date = models.DateField()
-    time = models.TimeField()
-    reason = models.TextField()
-
-    def __str__(self):
-        return f"Appointment: {self.patient.user.username} with {self.doctor.user.username} on {self.date} at {self.time}"
-
 # Model for storing prescriptions issued by doctors
 class Prescription(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     date = models.DateField()
     medicine = models.TextField()
@@ -101,7 +45,7 @@ class MedicalRecord(models.Model):
     record_date = models.DateField()
     diagnosis = models.CharField(max_length=200)
     treatment = models.TextField()
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Medical Record for {self.patient.user.username} - {self.record_date}"
@@ -118,8 +62,8 @@ class InsuranceDetail(models.Model):
 
 # Model for storing referrals from doctors
 class Referral(models.Model):
-    referring_doctor = models.ForeignKey(Doctor, related_name='referring_doctor', on_delete=models.CASCADE)
-    referred_doctor = models.ForeignKey(Doctor, related_name='referred_doctor', on_delete=models.CASCADE)
+    referring_doctor = models.ForeignKey(DoctorProfile, related_name='referring_doctor', on_delete=models.CASCADE)
+    referred_doctor = models.ForeignKey(DoctorProfile, related_name='referred_doctor', on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     date = models.DateField()
 

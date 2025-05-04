@@ -1,10 +1,10 @@
 from django.db import models
 from doctors.models import DoctorProfile
-from Patient.models import PatientProfile  # Adjust if your Patient app is named differently
+from accounts.models import Patient  # Adjust if your Patient app is named differently
 
 class Prescription(models.Model):
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
-    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE ,related_name='prescriptions')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE ,related_name='prescriptions')
     date_issued = models.DateField(auto_now_add=True)
     diagnosis = models.TextField()
     medications = models.TextField()

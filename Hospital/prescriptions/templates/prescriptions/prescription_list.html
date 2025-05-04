@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Prescriptions</h2>
+  {% if prescriptions %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Medication</th>
+            <th>Dosage</th>
+            <th>Instructions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in prescriptions %}
+            <tr>
+              <td>{{ p.date_issued|date:"Y-m-d H:i" }}</td>
+              <td>{{ p.doctor.name }}</td>
+              <td>{{ p.patient.name }}</td>
+              <td>{{ p.medication }}</td>
+              <td>{{ p.dosage }}</td>
+              <td>{{ p.instructions }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No prescriptions found.</p>
+  {% endif %}
+</div>
+{% endblock %}

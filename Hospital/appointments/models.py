@@ -14,8 +14,8 @@ class DoctorSchedule(models.Model):
         return f"{self.doctor.username}: {self.date} {self.start_time}-{self.end_time}"
 
 class Appointment(models.Model):
-    patient = models.ForeignKey(User, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
+    patient = models.ForeignKey(User, on_delete=models.CASCADE ,related_name='appointments')
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE,related_name='appointments')
     date = models.DateField()
     time = models.TimeField()
     reason = models.TextField(blank=True)

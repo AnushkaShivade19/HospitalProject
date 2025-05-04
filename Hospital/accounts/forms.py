@@ -1,11 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Doctor, Patient
+from .models import CustomUser, Patient
 from doctors.models import DoctorProfile
 from django.contrib.auth.models import User
-
-
-
 
 class PatientRegistrationForm(UserCreationForm):
     date_of_birth = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))

@@ -9,4 +9,5 @@ class PrescriptionForm(forms.ModelForm):
             'diagnosis': forms.Textarea(attrs={'class': 'form-control'}),
             'medications': forms.Textarea(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control'}),
+            'patient': forms.Select(attrs={'class': 'form-select'}),
         }
