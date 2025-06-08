@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect ,get_object_or_404
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout,authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import PatientRegistrationForm, DoctorRegistrationForm
@@ -7,7 +7,9 @@ from django.contrib import messages
 from doctors.models import DoctorProfile, DoctorSchedule, TimeOff
 from appointments.models import Appointment
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.urls import reverse
+from django.contrib.auth.views import LoginView
+
 
 def home(request):
     return render(request, 'home.html')
@@ -17,24 +19,30 @@ def custom_logout_view(request):
     logout(request)
     return redirect('home')  # or 'home', depending on where you want to redirect
 
-def is_admin_user(user):
-    return user.is_authenticated and (user.is_superuser or user.user_type == 'admin')
-
 def custom_login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
             login(request, user)
+            # Redirect based on user type
             if user.user_type == 'doctor':
                 return redirect('doctor_dashboard')
             elif user.user_type == 'patient':
                 return redirect('patient_dashboard')
-            elif user.user_type == 'admin':
-                return redirect('/admin/')
+            else:
+                return redirect('home')
+        else:
+            messages.error(request, 'Invalid username or password.')
+            return redirect('login')  # Redirect back to login on failure
     else:
-        form = AuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
+        return render(request, 'accounts/login.html')  # Show login form on GET
+        
+def is_admin_user(user):
+    return user.is_authenticated and (user.is_superuser or user.user_type == 'admin')
+
 
 def register_patient(request):
     if request.method == 'POST':
@@ -55,35 +63,14 @@ def register_doctor_internal(request):
     if request.method == 'POST':
         form = DoctorRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save the User object (doctor user)
-            user = form.save()
-
-            # Prevent duplicate DoctorProfile creation
-            if DoctorProfile.objects.filter(user=user).exists():
-                messages.error(request, "This user already has a doctor profile.")
-                return redirect('doctor_dashboard')
-
-            # Create the DoctorProfile
-            doctor_profile = DoctorProfile.objects.create(
-                user=user,
-                specialization=form.cleaned_data.get('specialization'),
-                qualification=form.cleaned_data.get('qualification'),
-                years_of_experience=form.cleaned_data.get('years_of_experience'),
-                clinic_address=form.cleaned_data.get('clinic_address'),
-                phone_number=form.cleaned_data.get('phone_number'),
-                profile_picture=form.cleaned_data.get('profile_picture'),  
-                bio=form.cleaned_data.get('bio'),
-            )
-
+            form.save()
             messages.success(request, "Doctor registered successfully.")
-            return redirect('doctor_dashboard')  # Or another success page
+            return redirect('doctor_dashboard')  # or wherever you want
         else:
-            messages.error(request, "Please correct the errors below.")
+            print(form.errors)  # Add this to debug form validation issues
     else:
         form = DoctorRegistrationForm()
-
     return render(request, 'accounts/register_doctor.html', {'form': form})
-
 
 
 @login_required
@@ -108,6 +95,7 @@ def doctor_dashboard(request):
         'appointments': appointments,
     }
     return render(request, 'accounts/doctor_dashboard.html', context)
+
 
 @login_required
 def patient_dashboard(request):

@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DoctorProfile, DoctorSchedule, TimeOff
 from .forms import DoctorScheduleForm, TimeOffForm
-from .models import Doctor
 
 @login_required
 def doctor_schedule_list(request):
@@ -11,8 +10,14 @@ def doctor_schedule_list(request):
     schedules = DoctorSchedule.objects.filter(doctor=doctor)
     return render(request, 'doctors/schedule_list.html', {'schedules': schedules})
 
+from django.http import Http404
 @login_required
 def add_schedule(request):
+    try:
+        doctor = DoctorProfile.objects.get(user=request.user)
+    except DoctorProfile.DoesNotExist:
+        messages.error(request, "Doctor profile not found. Contact admin.")
+        raise Http404("DoctorProfile does not exist.")
     days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
     # Get the doctor profile linked to the user

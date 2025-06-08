@@ -47,6 +47,7 @@ class DoctorProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.specialization}"
+    
 class DoctorSchedule(models.Model):
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
     day_of_week = models.CharField(max_length=10, choices=[
@@ -71,12 +72,5 @@ class TimeOff(models.Model):
 
     def __str__(self):
         return f"{self.doctor} off on {self.date}"
-from django.db import models
 
-class Doctor(models.Model):
-    name = models.CharField(max_length=255)
-    specialization = models.CharField(max_length=255)
-    contact = models.CharField(max_length=255)
 
-    def __str__(self):
-        return self.name

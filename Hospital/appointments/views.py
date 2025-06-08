@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Appointment
-from doctors.models import DoctorProfile, DoctorSchedule, TimeOff, Doctor
+from doctors.models import DoctorProfile, DoctorSchedule, TimeOff
 from datetime import datetime, timedelta, time as djangotime
 from django.shortcuts import render, redirect
 from .models import DoctorSchedule, Appointment
@@ -42,11 +42,11 @@ def book_appointment(request):
 
     # Step 2: Get selected specialization & doctors in that field
     selected_specialization = request.GET.get('specialization') or request.POST.get('specialization')
-    doctors = Doctor.objects.filter(specialization=selected_specialization) if selected_specialization else []
+    doctors = DoctorProfile.objects.filter(specialization=selected_specialization) if selected_specialization else []
 
     # Step 3: Get the selected doctor and their available slots
     selected_doctor_id = request.GET.get('doctor') or request.POST.get('doctor_id')
-    selected_doctor = Doctor.objects.filter(id=selected_doctor_id).first() if selected_doctor_id else None
+    selected_doctor = DoctorProfile.objects.filter(id=selected_doctor_id).first() if selected_doctor_id else None
     slots = DoctorSchedule.objects.filter(doctor=selected_doctor) if selected_doctor else None
 
     if request.method == 'POST':
